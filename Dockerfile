@@ -41,8 +41,11 @@ RUN install-php-extensions gd \
     msgpack \
     pcntl \
     igbinary \
-    redis \
-    swoole
+    redis
+
+RUN pecl channel-update https://pecl.php.net/channel.xml
+
+RUN yes | pecl install swoole
 
 RUN apt-get -y autoremove \
     && apt-get clean \
