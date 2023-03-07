@@ -25,7 +25,9 @@ RUN install-php-extensions gd \
     bcmath \
     msgpack \
     pcntl \
-    igbinary
+    igbinary \
+    intl \
+    zip
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
