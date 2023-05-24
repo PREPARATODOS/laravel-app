@@ -9,5 +9,5 @@ chown -R sail:sail /home/sail
 if [ $# -gt 0 ];then
     exec gosu 1001 "$@"
 else
-    /usr/local/bin/php /var/www/html/artisan serve --host=0.0.0.0 --port=80
+    /usr/local/bin/php /var/www/html/artisan queue:work --tries=3 --timeout=60
 fi
