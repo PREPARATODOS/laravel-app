@@ -1,4 +1,4 @@
-FROM php:8.2-cli
+FROM php:7.4-fpm
 
 WORKDIR /var/www/html
 
@@ -24,13 +24,10 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 RUN chmod +x /usr/local/bin/install-php-extensions && sync
 
 RUN install-php-extensions gd \
-    xdebug \
     memcached \
     imap \
     pdo \
-    pgsql \
     pdo_mysql \
-    pdo_pgsql \
     zip \
     bcmath \
     soap \
@@ -38,16 +35,6 @@ RUN install-php-extensions gd \
     pcntl \
     igbinary \
     redis
-
-RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list' \
-    && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
-    && apt-get update \
-    && apt-get install -y postgresql-client-14
-
-RUN echo "xdebug.discover_client_host=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.log=/var/log/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.start_with_request=trigger" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && rm -rf /tmp/* /var/tmp/*
 
 RUN apt-get -y autoremove \
     && apt-get clean \
@@ -57,14 +44,10 @@ RUN setcap "cap_net_bind_service=+ep" /usr/local/bin/php
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN touch /var/log/xdebug.log
-RUN chmod -R ugo+rw /var/log/xdebug.log
+COPY project/ /var/www/html/
 
 COPY php.ini /usr/local/etc/php/php.ini
-
 COPY start-container /usr/local/bin/start-container
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY supervisor/ /tmp/supervisor/
 RUN chmod +x /usr/local/bin/start-container
 
 ENTRYPOINT [ "start-container" ]
